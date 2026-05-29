@@ -7,19 +7,35 @@
 	<script src="phaser.js"></script>
 	<script src="principal.js"></script>
 	<style>
+		body{
+			min-height:100vh;
+			margin:0;
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			justify-content:center;
+			background:#f2f2f2;
+		}
+
+		#bloque_juego{
+			width:875px;
+			max-width:calc(100vw - 24px);
+		}
+
 		#nombre_jugador{
-			width:700px;
+			width:min(875px, calc(100vw - 24px));
 			text-align:center;
 			font-size:32px;
 			font-family:Arial, sans-serif;
 			font-weight:bold;
+			margin-top:10px;
 		}
 	</style>
 
 </head>
 <body>
 	<div id="bloque_juego"></div>
-	<div id="nombre_jugador">Yenner Horna - U22207709</div>
+	<footer id="nombre_jugador">Yenner Horna - U22207709</footer>
 
 </body>
 </html>

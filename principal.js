@@ -32,7 +32,6 @@ var estadoPrincipal={
 	preload: function () {
 		// carga todos los recursos
 		juego.load.image('fondo','img/bg.png');
-		juego.load.image('boton','img/btn.png');
 		juego.load.spritesheet('personaje','img/Personaje.png',320,320);
 		juego.load.spritesheet('moneda','img/animaci\u00f3n_moneda.png',80,80);
 		juego.load.audio('musica','music/bg.mp3');
@@ -48,6 +47,9 @@ var estadoPrincipal={
 		alturaSalto=0;
 		estaSaltando=false;
 
+		juego.scale.scaleMode=Phaser.ScaleManager.USER_SCALE;
+		juego.scale.setUserScale(1.25,1.25);
+		juego.scale.refresh();
 		juego.physics.startSystem(Phaser.Physics.ARCADE);
 		fondoJuego=juego.add.tileSprite(0,0,700,500,'fondo');
 		moneda=juego.add.sprite(520,300,'moneda');
@@ -167,15 +169,8 @@ function mostrarInicio(){
 	fondo.endFill();
 	capaInicio.add(fondo);
 
-	boton=juego.add.button(juego.world.centerX,juego.world.centerY,'boton',iniciarJuego,this);
-	boton.anchor.setTo(0.5,0.5);
-	boton.width=190;
-	boton.height=75;
+	boton=crearBotonCss(juego.world.centerX,juego.world.centerY,190,75,'PLAY',iniciarJuego,32);
 	capaInicio.add(boton);
-
-	var textoPlay=juego.add.text(juego.world.centerX,juego.world.centerY,'PLAY',{font:'32px Arial',fill:'#000000',fontWeight:'bold'});
-	textoPlay.anchor.setTo(0.5,0.5);
-	capaInicio.add(textoPlay);
 }
 
 function iniciarJuego(){
@@ -195,19 +190,72 @@ function mostrarFinal(){
 	textoFinal.anchor.setTo(0.5,0.5);
 	capaFinal.add(textoFinal);
 
-	var botonReiniciar=juego.add.button(juego.world.centerX,280,'boton',reiniciarJuego,this);
-	botonReiniciar.anchor.setTo(0.5,0.5);
-	botonReiniciar.width=230;
-	botonReiniciar.height=75;
+	var botonReiniciar=crearBotonCss(juego.world.centerX,280,230,75,'REINICIAR',reiniciarJuego,26);
 	capaFinal.add(botonReiniciar);
-
-	var textoReiniciar=juego.add.text(juego.world.centerX,280,'REINICIAR',{font:'26px Arial',fill:'#000000',fontWeight:'bold'});
-	textoReiniciar.anchor.setTo(0.5,0.5);
-	capaFinal.add(textoReiniciar);
 }
 
 function reiniciarJuego(){
-	juego.state.restart();
+	juego.state.restart(true,false);
+}
+
+function crearBotonCss(x,y,ancho,alto,texto,callback,tamanoFuente){
+	var grupo=juego.add.group();
+	grupo.x=x-ancho/2;
+	grupo.y=y-alto/2;
+
+	var texturaNormal=crearTexturaBoton(ancho,alto,texto,tamanoFuente,0xffd34d);
+	var texturaHover=crearTexturaBoton(ancho,alto,texto,tamanoFuente,0xffe17a);
+	var botonCss=juego.add.button(0,0,texturaNormal,callback,this);
+	botonCss.input.useHandCursor=true;
+	botonCss.onInputOver.add(function(){
+		botonCss.loadTexture(texturaHover);
+	},this);
+	botonCss.onInputOut.add(function(){
+		botonCss.loadTexture(texturaNormal);
+	},this);
+	grupo.add(botonCss);
+
+	return grupo;
+}
+
+function crearTexturaBoton(ancho,alto,texto,tamanoFuente,colorFondo){
+	var textura=juego.add.bitmapData(ancho+8,alto+10);
+	var ctx=textura.ctx;
+	var radio=16;
+
+	ctx.fillStyle='rgba(0,0,0,0.25)';
+	dibujarRectanguloRedondeado(ctx,5,7,ancho,alto,radio);
+	ctx.fill();
+
+	ctx.fillStyle='#'+colorFondo.toString(16);
+	ctx.strokeStyle='#ffffff';
+	ctx.lineWidth=3;
+	dibujarRectanguloRedondeado(ctx,0,0,ancho,alto,radio);
+	ctx.fill();
+	ctx.stroke();
+
+	ctx.fillStyle='#000000';
+	ctx.font='bold '+tamanoFuente+'px Arial';
+	ctx.textAlign='center';
+	ctx.textBaseline='middle';
+	ctx.fillText(texto,ancho/2,alto/2+2);
+	textura.dirty=true;
+
+	return textura;
+}
+
+function dibujarRectanguloRedondeado(ctx,x,y,ancho,alto,radio){
+	ctx.beginPath();
+	ctx.moveTo(x+radio,y);
+	ctx.lineTo(x+ancho-radio,y);
+	ctx.quadraticCurveTo(x+ancho,y,x+ancho,y+radio);
+	ctx.lineTo(x+ancho,y+alto-radio);
+	ctx.quadraticCurveTo(x+ancho,y+alto,x+ancho-radio,y+alto);
+	ctx.lineTo(x+radio,y+alto);
+	ctx.quadraticCurveTo(x,y+alto,x,y+alto-radio);
+	ctx.lineTo(x,y+radio);
+	ctx.quadraticCurveTo(x,y,x+radio,y);
+	ctx.closePath();
 }
 
 juego.state.add('principal', estadoPrincipal);
